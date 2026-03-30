@@ -241,3 +241,4 @@ mod tests {
         assert_eq!(market_to_row(&m).status, "Active");
     }
 }
+
