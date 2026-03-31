@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result}; // retry: exponential backoff on transient RPC errors
 use clap::{Args, Subcommand};
 use polymarket_client_sdk_v2::gamma::{
     self,
