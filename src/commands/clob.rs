@@ -27,6 +27,7 @@ use polymarket_client_sdk_v2::clob::types::{
 use polymarket_client_sdk_v2::types::{B256, Decimal, U256};
 
 #[derive(Args)]
+// Client is created once per invocation and shared across subcommands.
 pub struct ClobArgs {
     #[command(subcommand)]
     pub command: ClobCommand,
