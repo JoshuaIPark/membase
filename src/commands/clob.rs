@@ -13,7 +13,7 @@ use crate::output::clob::{
     print_rewards, print_server_time, print_simplified_markets, print_spread, print_spreads,
     print_tick_size, print_trades, print_user_earnings_markets,
 };
-use anyhow::Result;
+use anyhow::{Context, Result};
 use chrono::NaiveDate;
 use clap::{Args, Subcommand};
 use polymarket_client_sdk_v2::clob::types::{
