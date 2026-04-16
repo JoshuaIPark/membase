@@ -14,7 +14,7 @@ use crate::output::clob::{
     print_tick_size, print_trades, print_user_earnings_markets,
 };
 use anyhow::{Context, Result};
-use chrono::NaiveDate;
+use chrono::NaiveDate; // date parsing for time-range filters
 use clap::{Args, Subcommand};
 use polymarket_client_sdk_v2::clob::types::{
     Amount, AssetType, Interval, OrderType, Side, TimeRange,
