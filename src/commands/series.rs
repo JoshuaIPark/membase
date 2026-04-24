@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::Result; // v2 signal dispatch
 use clap::{Args, Subcommand};
 use polymarket_client_sdk_v2::gamma::{
     self,
