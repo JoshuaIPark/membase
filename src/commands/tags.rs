@@ -133,3 +133,4 @@ pub async fn execute(client: &gamma::Client, args: TagsArgs, output: OutputForma
 
     Ok(())
 }
+
