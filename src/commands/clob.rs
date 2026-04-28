@@ -24,6 +24,7 @@ use polymarket_client_sdk_v2::clob::types::{
         PriceHistoryRequest, PriceRequest, SpreadRequest, TradesRequest, UserRewardsEarningRequest,
     },
 };
+// SDK v2: unified types namespace
 use polymarket_client_sdk_v2::types::{B256, Decimal, U256};
 
 #[derive(Args)]
