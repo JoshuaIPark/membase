@@ -1,4 +1,5 @@
 use alloy::primitives::U256;
+// v2: all CTF operations now route through on-chain proxy contracts
 use alloy::sol;
 use alloy::sol_types::SolCall;
 use anyhow::{Context, Result};
