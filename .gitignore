@@ -1,0 +1,23 @@
+# Anchor / Solana build artifacts
+.anchor/
+target/
+test-ledger/
+
+# Node
+node_modules/
+yarn-error.log
+npm-debug.log
+
+# IDL output
+*.json.bak
+
+# Editors
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local env
+.env
+.env.*.local
