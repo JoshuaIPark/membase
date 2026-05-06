@@ -6,6 +6,7 @@
 
 <p align="center">
   <a href="https://alphaline.fun"><img alt="Site" src="https://img.shields.io/badge/site-alphaline.fun-1a8917?style=for-the-badge"></a>
+  <a href="https://pump.fun/coin/4R5KQBuarwMXZB4hh4G3RdP16BUbVFgaEH92VmENpump"><img alt="$CROP" src="https://img.shields.io/badge/%24CROP-Live-9945FF?logo=solana&logoColor=white&style=for-the-badge"></a>
   <a href="https://x.com/cropfun"><img alt="Twitter" src="https://img.shields.io/badge/follow-%40cropfun-000000?logo=x&style=for-the-badge"></a>
   <a href="https://medium.com/@CropLandFun"><img alt="Medium" src="https://img.shields.io/badge/medium-%40CropLandFun-12100E?logo=medium&style=for-the-badge"></a>
 </p>
@@ -321,9 +322,25 @@ Every six hours, for one hour, every harvest in the world gets +20%. There's no 
 
 ---
 
+## $CROP Token
+
+The protocol's community token is **$CROP**, live on Solana via [Pump.fun](https://pump.fun/coin/4R5KQBuarwMXZB4hh4G3RdP16BUbVFgaEH92VmENpump).
+
+**Contract address:**
+
+```
+4R5KQBuarwMXZB4hh4G3RdP16BUbVFgaEH92VmENpump
+```
+
+$CROP holders get priority access to upcoming drops — including the **free Farmer NFT mint window**.
+
+> AlphaLine's in-game stakes, trades, and fees are denominated in USDC. $CROP is the community ticker — a coordination token, not the unit of account.
+
+---
+
 ## Tokenomics
 
-AlphaLine uses USDC as the primary token. There is no native governance token at launch.
+In-game economics are denominated in USDC.
 
 | Action                | Fee                              | Destination                   |
 | :-------------------- | :------------------------------- | :---------------------------- |
