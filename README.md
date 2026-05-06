@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/banner.png" alt="AlphaLine" />
-</p>
+<h1 align="center">AlphaLine</h1>
 
 <p align="center">
   <em>A multiplayer prediction market protocol on Solana. Stake land. Grow yield. Trade everything.</em>
