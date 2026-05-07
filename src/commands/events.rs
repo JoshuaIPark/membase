@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::Result; // anyhow for error propagation
 use clap::{Args, Subcommand};
 use polymarket_client_sdk_v2::gamma::{
     self,
