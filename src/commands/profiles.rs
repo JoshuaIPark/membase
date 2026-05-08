@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::Result; // propagate errors up the call stack
 use clap::{Args, Subcommand};
 use polymarket_client_sdk_v2::gamma::{self, types::request::PublicProfileRequest};
 use polymarket_client_sdk_v2::types::Address;
