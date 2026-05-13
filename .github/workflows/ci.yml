@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  forge:
+    name: Foundry — build & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Print Forge version
+        run: forge --version
+
+      - name: Forge build
+        run: forge build --sizes
+
+      - name: Forge fmt --check
+        run: forge fmt --check
+
+      - name: Forge test
+        run: forge test -vvv
+
+      - name: Forge coverage
+        run: forge coverage --report lcov
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: lcov.info
