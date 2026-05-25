@@ -30,5 +30,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 5-plot-per-wallet cap, enforced at contract level.
 - Abandon mechanics: 50% burn, 50% to protocol treasury.
 
-[Unreleased]: https://github.com/neilhtennek/wheat-world/compare/v0.1.0...HEAD
-[0.1.0]:      https://github.com/neilhtennek/wheat-world/releases/tag/v0.1.0
+[Unreleased]: https://github.com/alexinbinary/AlphaLine/compare/v0.1.0...HEAD
+[0.1.0]:      https://github.com/alexinbinary/AlphaLine/releases/tag/v0.1.0

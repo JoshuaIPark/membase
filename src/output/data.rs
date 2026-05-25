@@ -1,0 +1,663 @@
+use polymarket_client_sdk_v2::data::types::response::{
+    Activity, BuilderLeaderboardEntry, BuilderVolumeEntry, ClosedPosition, LiveVolume, Market,
+    MetaHolder, OpenInterest, Position, Trade, Traded, TraderLeaderboardEntry, Value,
+};
+use serde_json::json;
+use tabled::settings::Style;
+use tabled::{Table, Tabled};
+
+use super::{DASH, OutputFormat, format_decimal, truncate};
+
+fn format_market(m: &Market) -> String {
+    match m {
+        Market::Global => "Global".into(),
+        Market::Market(id) => id.to_string(),
+        _ => "Unknown".into(),
+    }
+}
+
+pub fn print_positions(positions: &[Position], output: &OutputFormat) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => {
+            if positions.is_empty() {
+                println!("No positions found.");
+                return Ok(());
+            }
+            #[derive(Tabled)]
+            struct Row {
+                #[tabled(rename = "Market")]
+                title: String,
+                #[tabled(rename = "Outcome")]
+                outcome: String,
+                #[tabled(rename = "Size")]
+                size: String,
+                #[tabled(rename = "Avg Price")]
+                avg_price: String,
+                #[tabled(rename = "Current")]
+                current_value: String,
+                #[tabled(rename = "PnL")]
+                pnl: String,
+            }
+            let rows: Vec<Row> = positions
+                .iter()
+                .map(|p| Row {
+                    title: truncate(&p.title, 40),
+                    outcome: p.outcome.clone(),
+                    size: format!("{:.2}", p.size),
+                    avg_price: format!("{:.4}", p.avg_price),
+                    current_value: format_decimal(p.current_value),
+                    pnl: format!("{:.2}", p.cash_pnl),
+                })
+                .collect();
+            let table = Table::new(rows).with(Style::rounded()).to_string();
+            println!("{table}");
+        }
+        OutputFormat::Json => {
+            let data: Vec<_> = positions
+                .iter()
+                .map(|p| {
+                    json!({
+                        "title": p.title,
+                        "slug": p.slug,
+                        "icon": p.icon,
+                        "event_slug": p.event_slug,
+                        "event_id": p.event_id,
+                        "outcome": p.outcome,
+                        "outcome_index": p.outcome_index,
+                        "opposite_outcome": p.opposite_outcome,
+                        "opposite_asset": p.opposite_asset.to_string(),
+                        "asset": p.asset.to_string(),
+                        "size": p.size.to_string(),
+                        "avg_price": p.avg_price.to_string(),
+                        "initial_value": p.initial_value.to_string(),
+                        "current_value": p.current_value.to_string(),
+                        "cash_pnl": p.cash_pnl.to_string(),
+                        "percent_pnl": p.percent_pnl.to_string(),
+                        "total_bought": p.total_bought.to_string(),
+                        "realized_pnl": p.realized_pnl.to_string(),
+                        "percent_realized_pnl": p.percent_realized_pnl.to_string(),
+                        "cur_price": p.cur_price.to_string(),
+                        "condition_id": p.condition_id.to_string(),
+                        "proxy_wallet": p.proxy_wallet.to_string(),
+                        "redeemable": p.redeemable,
+                        "mergeable": p.mergeable,
+                        "end_date": p.end_date.map(|d| d.to_string()),
+                        "negative_risk": p.negative_risk,
+                    })
+                })
+                .collect();
+            super::print_json(&data)?;
+        }
+    }
+    Ok(())
+}
+
+pub fn print_closed_positions(
+    positions: &[ClosedPosition],
+    output: &OutputFormat,
+) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => {
+            if positions.is_empty() {
+                println!("No closed positions found.");
+                return Ok(());
+            }
+            #[derive(Tabled)]
+            struct Row {
+                #[tabled(rename = "Market")]
+                title: String,
+                #[tabled(rename = "Outcome")]
+                outcome: String,
+                #[tabled(rename = "Avg Price")]
+                avg_price: String,
+                #[tabled(rename = "Realized PnL")]
+                realized_pnl: String,
+            }
+            let rows: Vec<Row> = positions
+                .iter()
+                .map(|p| Row {
+                    title: truncate(&p.title, 40),
+                    outcome: p.outcome.clone(),
+                    avg_price: format!("{:.4}", p.avg_price),
+                    realized_pnl: format!("{:.2}", p.realized_pnl),
+                })
+                .collect();
+            let table = Table::new(rows).with(Style::rounded()).to_string();
+            println!("{table}");
+        }
+        OutputFormat::Json => {
+            let data: Vec<_> = positions
+                .iter()
+                .map(|p| {
+                    json!({
+                        "title": p.title,
+                        "slug": p.slug,
+                        "icon": p.icon,
+                        "event_slug": p.event_slug,
+                        "outcome": p.outcome,
+                        "outcome_index": p.outcome_index,
+                        "opposite_outcome": p.opposite_outcome,
+                        "opposite_asset": p.opposite_asset.to_string(),
+                        "asset": p.asset.to_string(),
+                        "avg_price": p.avg_price.to_string(),
+                        "total_bought": p.total_bought.to_string(),
+                        "realized_pnl": p.realized_pnl.to_string(),
+                        "cur_price": p.cur_price.to_string(),
+                        "condition_id": p.condition_id.to_string(),
+                        "proxy_wallet": p.proxy_wallet.to_string(),
+                        "timestamp": p.timestamp,
+                        "end_date": p.end_date.date_naive().to_string(),
+                    })
+                })
+                .collect();
+            super::print_json(&data)?;
+        }
+    }
+    Ok(())
+}
+
+pub fn print_value(values: &[Value], output: &OutputFormat) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => {
+            if values.is_empty() {
+                println!("No value data found.");
+                return Ok(());
+            }
+            #[derive(Tabled)]
+            struct Row {
+                #[tabled(rename = "User")]
+                user: String,
+                #[tabled(rename = "Value")]
+                value: String,
+            }
+            let rows: Vec<Row> = values
+                .iter()
+                .map(|v| Row {
+                    user: truncate(&v.user.to_string(), 14),
+                    value: format_decimal(v.value),
+                })
+                .collect();
+            let table = Table::new(rows).with(Style::rounded()).to_string();
+            println!("{table}");
+        }
+        OutputFormat::Json => {
+            let data: Vec<_> = values
+                .iter()
+                .map(|v| json!({"user": v.user.to_string(), "value": v.value.to_string()}))
+                .collect();
+            super::print_json(&data)?;
+        }
+    }
+    Ok(())
+}
+
+pub fn print_traded(t: &Traded, output: &OutputFormat) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => println!("{}: {} markets traded", t.user, t.traded),
+        OutputFormat::Json => {
+            super::print_json(&json!({
+                "user": t.user.to_string(),
+                "traded": t.traded,
+            }))?;
+        }
+    }
+    Ok(())
+}
+
+pub fn print_trades(trades: &[Trade], output: &OutputFormat) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => {
+            if trades.is_empty() {
+                println!("No trades found.");
+                return Ok(());
+            }
+            #[derive(Tabled)]
+            struct Row {
+                #[tabled(rename = "Market")]
+                title: String,
+                #[tabled(rename = "Side")]
+                side: String,
+                #[tabled(rename = "Outcome")]
+                outcome: String,
+                #[tabled(rename = "Size")]
+                size: String,
+                #[tabled(rename = "Price")]
+                price: String,
+            }
+            let rows: Vec<Row> = trades
+                .iter()
+                .map(|t| Row {
+                    title: truncate(&t.title, 40),
+                    side: t.side.to_string(),
+                    outcome: t.outcome.clone(),
+                    size: format!("{:.2}", t.size),
+                    price: format!("{:.4}", t.price),
+                })
+                .collect();
+            let table = Table::new(rows).with(Style::rounded()).to_string();
+            println!("{table}");
+        }
+        OutputFormat::Json => {
+            let data: Vec<_> = trades
+                .iter()
+                .map(|t| {
+                    json!({
+                        "title": t.title,
+                        "slug": t.slug,
+                        "icon": t.icon,
+                        "event_slug": t.event_slug,
+                        "side": t.side.to_string(),
+                        "outcome": t.outcome,
+                        "outcome_index": t.outcome_index,
+                        "asset": t.asset.to_string(),
+                        "size": t.size.to_string(),
+                        "price": t.price.to_string(),
+                        "timestamp": t.timestamp,
+                        "condition_id": t.condition_id.to_string(),
+                        "proxy_wallet": t.proxy_wallet.to_string(),
+                        "transaction_hash": t.transaction_hash.to_string(),
+                        "name": t.name,
+                        "pseudonym": t.pseudonym,
+                        "bio": t.bio,
+                        "profile_image": t.profile_image,
+                        "profile_image_optimized": t.profile_image_optimized,
+                    })
+                })
+                .collect();
+            super::print_json(&data)?;
+        }
+    }
+    Ok(())
+}
+
+pub fn print_activity(activity: &[Activity], output: &OutputFormat) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => {
+            if activity.is_empty() {
+                println!("No activity found.");
+                return Ok(());
+            }
+            #[derive(Tabled)]
+            struct Row {
+                #[tabled(rename = "Type")]
+                activity_type: String,
+                #[tabled(rename = "Market")]
+                title: String,
+                #[tabled(rename = "Side")]
+                side: String,
+                #[tabled(rename = "Outcome")]
+                outcome: String,
+                #[tabled(rename = "Price")]
+                price: String,
+                #[tabled(rename = "Size")]
+                size: String,
+                #[tabled(rename = "Collateral")]
+                usdc_size: String,
+                #[tabled(rename = "Tx")]
+                tx: String,
+            }
+            let rows: Vec<Row> = activity
+                .iter()
+                .map(|a| Row {
+                    activity_type: a.activity_type.to_string(),
+                    title: truncate(a.title.as_deref().unwrap_or(DASH), 35),
+                    side: a.side.as_ref().map(|s| s.to_string()).unwrap_or_default(),
+                    outcome: a.outcome.as_deref().unwrap_or(DASH).into(),
+                    price: a.price.map(|p| format!("{:.4}", p)).unwrap_or_default(),
+                    size: format!("{:.2}", a.size),
+                    usdc_size: format_decimal(a.usdc_size),
+                    tx: truncate(&a.transaction_hash.to_string(), 14),
+                })
+                .collect();
+            let table = Table::new(rows).with(Style::rounded()).to_string();
+            println!("{table}");
+        }
+        OutputFormat::Json => {
+            let data: Vec<_> = activity
+                .iter()
+                .map(|a| {
+                    json!({
+                        "activity_type": a.activity_type.to_string(),
+                        "title": a.title,
+                        "slug": a.slug,
+                        "icon": a.icon,
+                        "event_slug": a.event_slug,
+                        "side": a.side.as_ref().map(|s| s.to_string()),
+                        "outcome": a.outcome,
+                        "outcome_index": a.outcome_index,
+                        "price": a.price.map(|p| p.to_string()),
+                        "asset": a.asset.map(|a| a.to_string()),
+                        "condition_id": a.condition_id.map(|c| c.to_string()),
+                        "size": a.size.to_string(),
+                        "usdc_size": a.usdc_size.to_string(),
+                        "timestamp": a.timestamp,
+                        "transaction_hash": a.transaction_hash.to_string(),
+                        "proxy_wallet": a.proxy_wallet.to_string(),
+                        "name": a.name,
+                        "pseudonym": a.pseudonym,
+                        "bio": a.bio,
+                        "profile_image": a.profile_image,
+                        "profile_image_optimized": a.profile_image_optimized,
+                    })
+                })
+                .collect();
+            super::print_json(&data)?;
+        }
+    }
+    Ok(())
+}
+
+pub fn print_holders(meta_holders: &[MetaHolder], output: &OutputFormat) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => {
+            if meta_holders.is_empty() {
+                println!("No holders found.");
+                return Ok(());
+            }
+            #[derive(Tabled)]
+            struct Row {
+                #[tabled(rename = "Wallet")]
+                wallet: String,
+                #[tabled(rename = "Name")]
+                name: String,
+                #[tabled(rename = "Amount")]
+                amount: String,
+                #[tabled(rename = "Outcome")]
+                outcome_index: String,
+            }
+            let rows: Vec<Row> = meta_holders
+                .iter()
+                .flat_map(|mh| {
+                    mh.holders.iter().map(|h| Row {
+                        wallet: truncate(&h.proxy_wallet.to_string(), 14),
+                        name: h
+                            .name
+                            .as_deref()
+                            .or(h.pseudonym.as_deref())
+                            .unwrap_or(DASH)
+                            .into(),
+                        amount: format_decimal(h.amount),
+                        outcome_index: h.outcome_index.to_string(),
+                    })
+                })
+                .collect();
+            let table = Table::new(rows).with(Style::rounded()).to_string();
+            println!("{table}");
+        }
+        OutputFormat::Json => {
+            let data: Vec<_> = meta_holders
+                .iter()
+                .map(|mh| {
+                    let holders: Vec<_> = mh
+                        .holders
+                        .iter()
+                        .map(|h| {
+                            json!({
+                                "proxy_wallet": h.proxy_wallet.to_string(),
+                                "name": h.name,
+                                "pseudonym": h.pseudonym,
+                                "bio": h.bio,
+                                "asset": h.asset.to_string(),
+                                "amount": h.amount.to_string(),
+                                "outcome_index": h.outcome_index,
+                                "display_username_public": h.display_username_public,
+                                "profile_image": h.profile_image,
+                                "profile_image_optimized": h.profile_image_optimized,
+                                "verified": h.verified,
+                            })
+                        })
+                        .collect();
+                    json!({"token": mh.token.to_string(), "holders": holders})
+                })
+                .collect();
+            super::print_json(&data)?;
+        }
+    }
+    Ok(())
+}
+
+pub fn print_open_interest(oi: &[OpenInterest], output: &OutputFormat) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => {
+            if oi.is_empty() {
+                println!("No open interest data found.");
+                return Ok(());
+            }
+            #[derive(Tabled)]
+            struct Row {
+                #[tabled(rename = "Market")]
+                market: String,
+                #[tabled(rename = "Open Interest")]
+                value: String,
+            }
+            let rows: Vec<Row> = oi
+                .iter()
+                .map(|o| Row {
+                    market: format_market(&o.market),
+                    value: format_decimal(o.value),
+                })
+                .collect();
+            let table = Table::new(rows).with(Style::rounded()).to_string();
+            println!("{table}");
+        }
+        OutputFormat::Json => {
+            let data: Vec<_> = oi
+                .iter()
+                .map(|o| json!({"market": format_market(&o.market), "value": o.value.to_string()}))
+                .collect();
+            super::print_json(&data)?;
+        }
+    }
+    Ok(())
+}
+
+pub fn print_live_volume(volume: &[LiveVolume], output: &OutputFormat) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => {
+            if volume.is_empty() {
+                println!("No volume data found.");
+                return Ok(());
+            }
+            #[derive(Tabled)]
+            struct Row {
+                #[tabled(rename = "Market")]
+                market: String,
+                #[tabled(rename = "Volume")]
+                value: String,
+            }
+            for v in volume {
+                println!("Total: {}", format_decimal(v.total));
+                let rows: Vec<Row> = v
+                    .markets
+                    .iter()
+                    .map(|mv| Row {
+                        market: format_market(&mv.market),
+                        value: format_decimal(mv.value),
+                    })
+                    .collect();
+                let table = Table::new(rows).with(Style::rounded()).to_string();
+                println!("{table}");
+            }
+        }
+        OutputFormat::Json => {
+            let data: Vec<_> = volume
+                .iter()
+                .map(|v| {
+                    let markets: Vec<_> = v
+                        .markets
+                        .iter()
+                        .map(|mv| json!({"market": format_market(&mv.market), "value": mv.value.to_string()}))
+                        .collect();
+                    json!({"total": v.total.to_string(), "markets": markets})
+                })
+                .collect();
+            super::print_json(&data)?;
+        }
+    }
+    Ok(())
+}
+
+pub fn print_leaderboard(
+    entries: &[TraderLeaderboardEntry],
+    output: &OutputFormat,
+) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => {
+            if entries.is_empty() {
+                println!("No leaderboard entries found.");
+                return Ok(());
+            }
+            #[derive(Tabled)]
+            struct Row {
+                #[tabled(rename = "#")]
+                rank: String,
+                #[tabled(rename = "Trader")]
+                trader: String,
+                #[tabled(rename = "PnL")]
+                pnl: String,
+                #[tabled(rename = "Volume")]
+                volume: String,
+            }
+            let rows: Vec<Row> = entries
+                .iter()
+                .map(|e| Row {
+                    rank: e.rank.to_string(),
+                    trader: truncate(e.user_name.as_deref().unwrap_or(DASH), 20),
+                    pnl: format_decimal(e.pnl),
+                    volume: format_decimal(e.vol),
+                })
+                .collect();
+            let table = Table::new(rows).with(Style::rounded()).to_string();
+            println!("{table}");
+        }
+        OutputFormat::Json => {
+            let data: Vec<_> = entries
+                .iter()
+                .map(|e| {
+                    json!({
+                        "rank": e.rank,
+                        "proxy_wallet": e.proxy_wallet.to_string(),
+                        "user_name": e.user_name,
+                        "pnl": e.pnl.to_string(),
+                        "volume": e.vol.to_string(),
+                        "profile_image": e.profile_image,
+                        "x_username": e.x_username,
+                        "verified_badge": e.verified_badge,
+                    })
+                })
+                .collect();
+            super::print_json(&data)?;
+        }
+    }
+    Ok(())
+}
+
+pub fn print_builder_leaderboard(
+    entries: &[BuilderLeaderboardEntry],
+    output: &OutputFormat,
+) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => {
+            if entries.is_empty() {
+                println!("No builder leaderboard entries found.");
+                return Ok(());
+            }
+            #[derive(Tabled)]
+            struct Row {
+                #[tabled(rename = "#")]
+                rank: String,
+                #[tabled(rename = "Builder")]
+                builder: String,
+                #[tabled(rename = "Volume")]
+                volume: String,
+                #[tabled(rename = "Users")]
+                active_users: String,
+            }
+            let rows: Vec<Row> = entries
+                .iter()
+                .map(|e| Row {
+                    rank: e.rank.to_string(),
+                    builder: truncate(&e.builder, 25),
+                    volume: format_decimal(e.volume),
+                    active_users: e.active_users.to_string(),
+                })
+                .collect();
+            let table = Table::new(rows).with(Style::rounded()).to_string();
+            println!("{table}");
+        }
+        OutputFormat::Json => {
+            let data: Vec<_> = entries
+                .iter()
+                .map(|e| {
+                    json!({
+                        "rank": e.rank,
+                        "builder": e.builder,
+                        "volume": e.volume.to_string(),
+                        "active_users": e.active_users,
+                        "verified": e.verified,
+                        "builder_logo": e.builder_logo,
+                    })
+                })
+                .collect();
+            super::print_json(&data)?;
+        }
+    }
+    Ok(())
+}
+
+pub fn print_builder_volume(
+    entries: &[BuilderVolumeEntry],
+    output: &OutputFormat,
+) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => {
+            if entries.is_empty() {
+                println!("No builder volume data found.");
+                return Ok(());
+            }
+            #[derive(Tabled)]
+            struct Row {
+                #[tabled(rename = "Date")]
+                date: String,
+                #[tabled(rename = "Builder")]
+                builder: String,
+                #[tabled(rename = "Volume")]
+                volume: String,
+                #[tabled(rename = "Users")]
+                active_users: String,
+                #[tabled(rename = "#")]
+                rank: String,
+            }
+            let rows: Vec<Row> = entries
+                .iter()
+                .map(|e| Row {
+                    date: e.dt.format("%Y-%m-%d").to_string(),
+                    builder: truncate(&e.builder, 25),
+                    volume: format_decimal(e.volume),
+                    active_users: e.active_users.to_string(),
+                    rank: e.rank.to_string(),
+                })
+                .collect();
+            let table = Table::new(rows).with(Style::rounded()).to_string();
+            println!("{table}");
+        }
+        OutputFormat::Json => {
+            let data: Vec<_> = entries
+                .iter()
+                .map(|e| {
+                    json!({
+                        "date": e.dt.to_rfc3339(),
+                        "builder": e.builder,
+                        "builder_logo": e.builder_logo,
+                        "volume": e.volume.to_string(),
+                        "active_users": e.active_users,
+                        "rank": e.rank,
+                        "verified": e.verified,
+                    })
+                })
+                .collect();
+            super::print_json(&data)?;
+        }
+    }
+    Ok(())
+}

@@ -1,0 +1,121 @@
+use polymarket_client_sdk_v2::gamma::types::response::Series;
+use tabled::settings::Style;
+use tabled::{Table, Tabled};
+
+use super::{
+    DASH, OutputFormat, active_status, detail_field, format_date, format_decimal,
+    print_detail_table, print_json, truncate,
+};
+
+#[derive(Tabled)]
+struct SeriesRow {
+    #[tabled(rename = "Title")]
+    title: String,
+    #[tabled(rename = "Type")]
+    series_type: String,
+    #[tabled(rename = "Volume")]
+    volume: String,
+    #[tabled(rename = "Liquidity")]
+    liquidity: String,
+    #[tabled(rename = "Status")]
+    status: String,
+}
+
+fn series_to_row(s: &Series) -> SeriesRow {
+    SeriesRow {
+        title: truncate(s.title.as_deref().unwrap_or(DASH), 50),
+        series_type: s.series_type.as_deref().unwrap_or(DASH).into(),
+        volume: s.volume.map_or_else(|| DASH.into(), format_decimal),
+        liquidity: s.liquidity.map_or_else(|| DASH.into(), format_decimal),
+        status: active_status(s.closed, s.active).into(),
+    }
+}
+
+pub fn print_series(series: &[Series], output: &OutputFormat) -> anyhow::Result<()> {
+    match output {
+        OutputFormat::Table => {
+            if series.is_empty() {
+                println!("No series found.");
+                return Ok(());
+            }
+            let rows: Vec<SeriesRow> = series.iter().map(series_to_row).collect();
+            let table = Table::new(rows).with(Style::rounded()).to_string();
+            println!("{table}");
+        }
+        OutputFormat::Json => print_json(series)?,
+    }
+    Ok(())
+}
+
+pub fn print_series_item(s: &Series, output: &OutputFormat) -> anyhow::Result<()> {
+    if matches!(output, OutputFormat::Json) {
+        return print_json(s);
+    }
+    let mut rows: Vec<[String; 2]> = Vec::new();
+
+    detail_field!(rows, "ID", s.id.clone());
+    detail_field!(rows, "Title", s.title.clone().unwrap_or_default());
+    detail_field!(rows, "Slug", s.slug.clone().unwrap_or_default());
+    detail_field!(rows, "Type", s.series_type.clone().unwrap_or_default());
+    detail_field!(rows, "Recurrence", s.recurrence.clone().unwrap_or_default());
+    detail_field!(
+        rows,
+        "Description",
+        s.description.clone().unwrap_or_default()
+    );
+    detail_field!(
+        rows,
+        "Volume",
+        s.volume.map(format_decimal).unwrap_or_default()
+    );
+    detail_field!(
+        rows,
+        "Liquidity",
+        s.liquidity.map(format_decimal).unwrap_or_default()
+    );
+    detail_field!(
+        rows,
+        "Volume (24hr)",
+        s.volume_24hr.map(format_decimal).unwrap_or_default()
+    );
+    detail_field!(rows, "Status", active_status(s.closed, s.active).into());
+    detail_field!(
+        rows,
+        "Events",
+        s.events
+            .as_ref()
+            .map(|e| e.len().to_string())
+            .unwrap_or_default()
+    );
+    detail_field!(
+        rows,
+        "Comment Count",
+        s.comment_count.map(|c| c.to_string()).unwrap_or_default()
+    );
+    detail_field!(
+        rows,
+        "Start Date",
+        s.start_date.as_ref().map(format_date).unwrap_or_default()
+    );
+    detail_field!(
+        rows,
+        "Created At",
+        s.created_at.as_ref().map(format_date).unwrap_or_default()
+    );
+    detail_field!(
+        rows,
+        "Tags",
+        s.tags
+            .as_ref()
+            .map(|tags| {
+                tags.iter()
+                    .filter_map(|t| t.label.as_deref())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            })
+            .unwrap_or_default()
+    );
+
+    print_detail_table(rows);
+    Ok(())
+}

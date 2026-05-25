@@ -7,39 +7,32 @@ on:
     branches: [master]
 
 env:
-  FOUNDRY_PROFILE: ci
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
 
 jobs:
-  forge:
-    name: Foundry — build & test
+  build:
+    name: build & test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
         with:
-          submodules: recursive
+          components: rustfmt, clippy
 
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          version: stable
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
 
-      - name: Print Forge version
-        run: forge --version
+      - name: Build
+        run: cargo build --release
 
-      - name: Forge build
-        run: forge build --sizes
+      - name: Run tests
+        run: cargo test --release
 
-      - name: Forge fmt --check
-        run: forge fmt --check
+      - name: Clippy
+        run: cargo clippy -- -D warnings
 
-      - name: Forge test
-        run: forge test -vvv
-
-      - name: Forge coverage
-        run: forge coverage --report lcov
-
-      - name: Upload coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: lcov.info
+      - name: Format check
+        run: cargo fmt --check
