@@ -5,9 +5,10 @@
 </p>
 
 <p align="center">
-  <a href="https://alphaline.fun"><img alt="Site" src="https://img.shields.io/badge/site-alphaline.fun-1a8917?style=for-the-badge"></a>
-  <a href="https://x.com/cropfun"><img alt="Twitter" src="https://img.shields.io/badge/follow-%40cropfun-000000?logo=x&style=for-the-badge"></a>
-  <a href="https://medium.com/@CropLandFun"><img alt="Medium" src="https://img.shields.io/badge/medium-%40CropLandFun-12100E?logo=medium&style=for-the-badge"></a>
+  <a href="https://alphaline.gg"><img alt="Site" src="https://img.shields.io/badge/site-alphaline.gg-1a8917?style=for-the-badge"></a>
+  <a href="https://github.com/neilhtennek/wheat-world"><img alt="GitHub" src="https://img.shields.io/badge/source-neilhtennek%2Fwheat--world-181717?logo=github&style=for-the-badge"></a>
+  <a href="https://x.com/TheAlphaLine"><img alt="Twitter" src="https://img.shields.io/badge/follow-%40TheAlphaLine-000000?logo=x&style=for-the-badge"></a>
+  <a href="https://medium.com/@AlphaLine"><img alt="Medium" src="https://img.shields.io/badge/medium-%40AlphaLine-12100E?logo=medium&style=for-the-badge"></a>
 </p>
 
 <p align="center">
@@ -32,7 +33,7 @@ That single design choice is what separates AlphaLine from a prediction market a
 
 > **Land you don't believe in, you don't claim. Land you do, you defend.**
 
-Play now at **[alphaline.fun](https://alphaline.fun)** · Follow updates on **[@cropfun](https://x.com/cropfun)** · Read more on **[Medium](https://medium.com/@CropLandFun)**.
+Play now at **[alphaline.gg](https://alphaline.gg)** · Follow updates on **[@TheAlphaLine](https://x.com/TheAlphaLine)** · Read more on **[Medium](https://medium.com/@AlphaLine)**.
 
 ---
 
@@ -381,9 +382,9 @@ Independent review is in progress. Findings will be published in this repository
 
 ## Links
 
-- **Site** — [alphaline.fun](https://alphaline.fun)
-- **Twitter / X** — [@cropfun](https://x.com/cropfun)
-- **Medium** — [@CropLandFun](https://medium.com/@CropLandFun)
+- **Site** — [alphaline.gg](https://alphaline.gg)
+- **Twitter / X** — [@TheAlphaLine](https://x.com/TheAlphaLine)
+- **Medium** — [@AlphaLine](https://medium.com/@AlphaLine)
 - **Source** — you're reading it
 
 ---
