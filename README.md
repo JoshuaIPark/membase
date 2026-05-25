@@ -1,4 +1,6 @@
-<h1 align="center">AlphaLine</h1>
+<p align="center">
+  <img src="assets/banner.gif" alt="AlphaLine" />
+</p>
 
 <p align="center">
   <em>A multiplayer prediction market protocol on Base. Stake land. Grow yield. Trade everything.</em>
