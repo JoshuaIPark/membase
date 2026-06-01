@@ -7,6 +7,10 @@
 </p>
 
 <p align="center">
+  <b>$AlphaLine</b> &nbsp;|&nbsp; CA: <code>CLym3zdHsJu2VVkVJC2Wa6XCB5A6mDjciAfkx4fYpump</code>
+</p>
+
+<p align="center">
   <em>Real-time fair-value pricing for sports prediction markets — built for Polymarket.</em>
 </p>
 
